@@ -28,7 +28,7 @@ type DeckField struct {
 }
 
 //TODO: Impl function
-func GetProductInfo(firestore *firestore.Client, urlStr string) string {
+func DeckGetProductInfo(firestore *firestore.Client, urlStr string) string {
 	u, err := url.Parse(urlStr)
 	if err != nil {
 		log.Fatal(err)
