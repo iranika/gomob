@@ -1,12 +1,15 @@
 package gomob
 
 import (
+	"context"
 	"log"
 	"net/url"
 	"path/filepath"
 	"regexp"
 
+	firebase "firebase.google.com/go"
 	"github.com/PuerkitoBio/goquery"
+	"google.golang.org/api/option"
 )
 
 // ProductField is Product document field structure.
@@ -23,21 +26,47 @@ type ProductInfo struct {
 	Field ProductField
 }
 
-func getProductCode(urlstr string) string {
+var AllowDomain = [...]string{"dlsite.com"}
+
+func SetProductInfo(product ProductInfo) bool {
+	result := true
+
+	ctx := context.Background()
+	opt := option.WithCredentialsFile("firebase-setting.json")
+	app, err := firebase.NewApp(ctx, nil, opt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client, err := app.Firestore(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = client.Collection("products").Doc(product.Field.Id).Set(ctx, product.Field)
+	if err != nil {
+		log.Fatal(err)
+		result = false
+	}
+	return result
+}
+
+func GetProductCode(urlstr string) string {
 	u, err := url.Parse(urlstr)
 	if err != nil {
 		log.Fatal(err)
 	}
-	rep := regexp.MustCompile(`.html$`)
+	rep := regexp.MustCompile(`.html.*$`)
 	code := filepath.Base(rep.ReplaceAllString(u.Path, ""))
 	//TODO: プロダクトコードのチェック
 	return code
 }
 
-func getProductInfo(url string) ProductInfo {
+func GetProductInfo(url string) ProductInfo {
 	var result ProductInfo
+	// URLをアフィリエイトリンクに書き換える
 	result.Field.Url = url
-	result.Field.Id = getProductCode(url)
+	result.Field.Id = GetProductCode(url)
 	//Add fields
 	//TODO: 意図しないサイトへのアクセスをさせないようにする
 	var genres []string
