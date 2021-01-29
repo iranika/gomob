@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/iranika/gomob"
+	gomob "github.com/iranika/gomob"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -15,6 +15,7 @@ func main() {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
 
 	// Routes
 	e.POST("/dlsitesq", dlsitesq)
@@ -33,10 +34,13 @@ func dlsitesq(c echo.Context) error {
 	if err := c.Bind(u); err != nil {
 		return err
 	}
-	var product []gomob.ProductInfo
+	var products []gomob.ProductInfo
 
-	for i, url := range u.Urls {
-		product += gomob.getProductInfo(url)
+	for _, url := range u.Urls {
+		p := gomob.GetProductInfo(url)
+		gomob.SetProductInfo(p)
+		products = append(products, p)
 	}
-	return c.JSON(http.StatusOK, u)
+
+	return c.JSON(http.StatusOK, products)
 }
