@@ -2,11 +2,13 @@ package gomob
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/url"
 	"path/filepath"
 	"regexp"
-
+	"strconv"
+	"github.com/go-resty/resty/v2 v2.4.0"
 	firebase "firebase.google.com/go"
 	"github.com/PuerkitoBio/goquery"
 	"google.golang.org/api/option"
@@ -24,6 +26,13 @@ type ProductField struct {
 
 type ProductInfo struct {
 	Field ProductField
+}
+
+type SalesInfo struct {
+	SalesVolume uint64
+	Ranking     uint64
+	Favorite    uint64
+	Review      uint64
 }
 
 var AllowDomain = [...]string{"dlsite.com"}
@@ -88,5 +97,22 @@ func GetProductInfo(url string) ProductInfo {
 		})
 	*/
 
+	return result
+}
+
+func GetSalesInfo(url string) SalesInfo {
+	var result SalesInfo
+	code := GetProductCode(url)
+	req := "https://www.dlsite.com/maniax/product/info/ajax?product_id=" + code + "&cdn_cache_min=1"
+	client := restry.New()
+	res,err := client.R().
+		EnableTrace().
+		Get(req)
+	//	rep := regexp.MustCompile(`,`)
+	//	salesStr := rep.ReplaceAllString(doc.Find("#work_right > div.work_right_info > div:nth-child(2) > dl > dd.point").Text(), "")
+	salesStr := json.Unmarshal(res.Body)
+
+	fmt.Println(salesStr)
+	result.SalesVolume, _ = strconv.ParseUint(salesStr, 10, 32)
 	return result
 }

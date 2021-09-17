@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"github.com/iranika/gomob"
 )
@@ -9,8 +10,13 @@ import (
 //gomob-cli tools entry
 func main() {
 	var (
-		getDeck = flag.String("getdeck", "", "")
+		//getDeck  = flag.String("getdeck", "", "")
+		getSales = flag.String("getsales", "undefined", "")
 	)
 	flag.Parse()
-	gomob.GetBattleResult("Get battle")
+	if *getSales != "undefined" {
+		sales := gomob.GetSalesInfo(*getSales)
+		fmt.Println(sales)
+	}
+	//gomob.GetBattleResult("Get battle")
 }

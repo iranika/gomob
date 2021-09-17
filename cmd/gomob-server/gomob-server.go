@@ -16,10 +16,11 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://192.168.68.109", "http://192.168.68.109:8080"},
+		AllowOrigins: []string{"http://192.168.68.109", "http://192.168.68.109:8080", "https://iranika.github.io"},
 		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
 	}))
-
+	//e.AutoTLSManager.HostPolicy = autocert.HostWhitelist("gomob.iranika.info")
+	//e.AutoTLSManager.Cache = autocert.DirCache("/var/www/cert")
 	// Routes
 	e.POST("/dlsitesq", dlsitesq)
 
